@@ -7,7 +7,7 @@
  */
 var strategyMin= () => {
   const min_strategy = (value) => {
-    return Math.floor(value / 10) * 10
+    return Math.max(Math.floor(value / 10) * 10, 0)
   }
 
   const max_strategy = (value) => {
@@ -43,17 +43,17 @@ var strategyMinMax = () => {
 
 /**
  * Strategy to round float values (2 digits)
- * - min is included
- * - max is excluded
+ * - min is included (min value:  0)
+ * - max is excluded (max value:  100)
  * @return {[min, max]} return 2 functions
  */
   var strategyMinPercent = () => {
     const min_strategy = (value) => {
-      return Math.floor(value * 10) / 10
+      return Math.max(0, Math.floor(value * 10) / 10)
     }
 
     const max_strategy = (value) => {
-      return Math.floor(value * 10) / 10
+      return Math.min(Math.floor(value * 10) / 10, 100)
     }
 
     return {
@@ -63,17 +63,17 @@ var strategyMinMax = () => {
 }
 /**
  * Strategy to round float values (2 digits)
- * - min is included
- * - max is also included
+ * - min is included (min value: 0)
+ * - max is also included (max value: 100)
  * @return {{min, max}} return 2 functions
  */
 var strategyMinMaxPercent = () => {
     const min_strategy = (value) => {
-      return Math.floor(value * 10) / 10
+      return Math.max(Math.floor(value * 10) / 10, 0)
     }
 
     const max_strategy = (value) => {
-      return Math.ceil(value * 10) / 10
+      return Math.min(Math.ceil(value * 10) / 10, 100)
     }
 
     return {
@@ -81,6 +81,47 @@ var strategyMinMaxPercent = () => {
       max: max_strategy
     }
   }
+
+  /**
+   * Strategy to round float values (2 digits)
+   * - min is included (min value:  0)
+   * - max is excluded (max value:  100)
+   * @return {[min, max]} return 2 functions
+   */
+    var strategyMinRate= () => {
+      const min_strategy = (value) => {
+        return Math.floor(value * 10) / 10
+      }
+
+      const max_strategy = (value) => {
+        return Math.floor(value * 10) / 10
+      }
+
+      return {
+        min: min_strategy,
+        max: max_strategy
+      }
+  }
+  /**
+   * Strategy to round float values (2 digits)
+   * - min is included (min value: 0)
+   * - max is also included (max value: 100)
+   * @return {{min, max}} return 2 functions
+   */
+  var strategyMinMaxRate = () => {
+      const min_strategy = (value) => {
+        return Math.floor(value * 10) / 10
+      }
+
+      const max_strategy = (value) => {
+        return Math.ceil(value * 10) / 10
+      }
+
+      return {
+        min: min_strategy,
+        max: max_strategy
+      }
+    }
 
 /**
  * Represent a statistic mathematical classe / range
@@ -243,12 +284,18 @@ export class Stat {
       }
 
       result[result.length - 1].roundStrategy(strategyMinMax)
+    } else if('percent') {
+      for(let i = 0; i < result.length - 1; i++){
+        result[i].roundStrategy(strategyMinPercent)
+      }
+
+      result[result.length - 1].roundStrategy(strategyMinMaxRate)
     } else {
       for(let i = 0; i < result.length - 1; i++){
         result[i].roundStrategy(strategyMinPercent)
       }
 
-      result[result.length - 1].roundStrategy(strategyMinMaxPercent)
+      result[result.length - 1].roundStrategy(strategyMinMaxRate)
     }
 
     return result
