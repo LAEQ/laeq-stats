@@ -7,7 +7,7 @@
  */
 var strategyMin= () => {
   const min_strategy = (value) => {
-    return Math.max(Math.floor(value / 10) * 10, 0)
+    return Math.floor(value / 10) * 10
   }
 
   const max_strategy = (value) => {
@@ -28,7 +28,7 @@ var strategyMin= () => {
  */
 var strategyMinMax = () => {
   const min_strategy = (value) => {
-    return Math.max(Math.floor(value / 10) * 10, 0)
+    return Math.floor(value / 10) * 10
   }
 
   const max_strategy = (value) => {
@@ -49,11 +49,11 @@ var strategyMinMax = () => {
  */
   var strategyMinPercent = () => {
     const min_strategy = (value) => {
-      return Math.max(0, Math.floor(value * 10) / 10)
+      return Math.floor(value * 10) / 10
     }
 
     const max_strategy = (value) => {
-      return Math.min(Math.floor(value * 10) / 10, 100)
+      return Math.floor(value * 10) / 10
     }
 
     return {
@@ -69,11 +69,11 @@ var strategyMinMax = () => {
  */
 var strategyMinMaxPercent = () => {
     const min_strategy = (value) => {
-      return Math.max(Math.floor(value * 10) / 10, 0)
+      return Math.floor(value * 10) / 10
     }
 
     const max_strategy = (value) => {
-      return Math.min(Math.ceil(value * 10) / 10, 100)
+      return Math.ceil(value * 10) / 10
     }
 
     return {
@@ -221,20 +221,20 @@ export class Stat {
     return Math.ceil(x)
   }
 
-  getMin(valueMin){
+  minValue(value){
     if(this.type === 'discrete' || this.type === 'percent'){
-      return Math.max(0, valueMin)
+      return Math.max(0, value)
     }
 
-    return valueMin
+    return value
   }
 
-  getMax(valueMax){
+  maxValue(value){
     if(this.type === 'percent'){
-      return Math.min(100, valueMax)
+      return Math.min(100, value)
     }
 
-    return valueMax
+    return value
   }
 
   /**
@@ -253,7 +253,7 @@ export class Stat {
 
     let index = nb_per_classe
 
-    const min = this.getMin(this.values[0] - 0.01)
+    const min = this.minValue(this.values[0] - 0.01)
     const max = (this.values[index - 1] + this.values[index]) / 2
 
     result.push(new Classe(min, max))
@@ -271,7 +271,7 @@ export class Stat {
       --nb_per_classe
       index = nb_per_classe
 
-      const min = this.getMin(this.values[0] - 0.01)
+      const min = this.minValue(this.values[0] - 0.01)
       const max = (this.values[index - 1] + this.values[index]) / 2
 
       result.push(new Classe(min, max))
@@ -291,7 +291,7 @@ export class Stat {
     }
 
     //The max value for the upper classe is higher to the max value
-    result[result.length-1].max = this.getMax(this.values[total - 1] + 0.01)
+    result[result.length-1].max = this.maxValue(this.values[total - 1] + 0.01)
 
     //Set round strategies
     if(this.type === 'discrete'){
