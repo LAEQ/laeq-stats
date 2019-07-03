@@ -1,0 +1,26 @@
+{
+  "name": "laeq-stats",
+  "version": "1.0.2",
+  "description": "Provides functions for the statistical operations.",
+  "private": false,
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --require @babel/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LAEQ/laeq-stats.git"
+  },
+  "author": "David Maignan",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/register": "^7.4.4",
+    "chai": "^4.2.0",
+    "chai-exclude": "^2.0.1",
+    "mocha": "^6.1.4",
+    "nodemon": "^1.19.1"
+  }
+}
