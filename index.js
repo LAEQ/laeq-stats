@@ -158,7 +158,7 @@ class Classe{
  * Class to calculate statistical values from a list of values.
  * - median, min, max, quartiles, list of classes, ...
  */
-export class Stat {
+class Stat {
   constructor(values, type = 'discrete'){
     // console.log(values)
     if(values.length === 0){
@@ -317,3 +317,5 @@ export class Stat {
     return result
   }
 }
+
+export { Stat, Classe }
