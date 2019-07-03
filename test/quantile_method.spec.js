@@ -39,12 +39,26 @@ describe('Statistic: quantile method with integer values', function() {
 describe('Statistic: quantile method with float values', function() {
   describe('quantile with odd number of classe', function() {
     it('Case: 5 values - 3 classes', function() {
-      const stat = new Stat([1.23,3.67,8.89,53.24])
+      const stat = new Stat([1.23,3.67,8.89,53.24], 'percent')
       const result = stat.quantile(3)
 
-      chai.expect(result).excluding('roundStrategy').to.deep.equal([{ min: 1.22, max: 2.45}, { min: 2.45, max: 6.28}, { min:6.28, max:53.25}]);
+      chai.expect(result).excluding('roundStrategy').to.deep.equal(
+        [
+          { min: 1.22, max: 2.45},
+          { min: 2.45, max: 6.28},
+          { min:6.28, max:53.25}
+        ]
+      );
     });
 
+    it('Case: 5 values - 3 classes', function() {
+      const stat = new Stat([2.34, 4.56, 6.78, 23.45, 34.98, 45.11, 67.89, 78.00, 83.45, 93.34, 100], 'percent')
+      const result = stat.quantile(5)
+      const minValues = result.map(c => {return c.min.toFixed(2)})
+      chai.expect(minValues).to.deep.equal(["2.33", "5.67", "29.21", "56.50", "80.72"])
 
+      const maxValues = result.map(c => {return c.max.toFixed(2)})
+      chai.expect(maxValues).to.deep.equal(["5.67", "29.21", "56.50", "80.72", "100.01"])
+    });
   });
 });

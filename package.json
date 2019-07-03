@@ -1,6 +1,6 @@
 {
   "name": "laeq-stats",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Provides functions for the statistical operations.",
   "private": false,
   "scripts": {

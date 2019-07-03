@@ -1,25 +1,79 @@
+
+/**
+ * Strategy to round integer values
+ * - min is included
+ * - max is excluded
+ * @return {[min, max]} return 2 functions
+ */
 var strategyMin= () => {
-    const min_strategy = (value) => {
-      return Math.floor(value / 10) * 10
-    }
-
-    const max_strategy = (value) => {
-      return Math.floor(value / 10) * 10
-    }
-
-    return {
-      min: min_strategy,
-      max: max_strategy
-    }
+  const min_strategy = (value) => {
+    return Math.floor(value / 10) * 10
   }
 
+  const max_strategy = (value) => {
+    return Math.floor(value / 10) * 10
+  }
+
+  return {
+    min: min_strategy,
+    max: max_strategy
+  }
+}
+
+/**
+ * Strategy to round integer values
+ *  - min is included
+ *  - max is also included
+ * @return {[min, max]} return 2 functions
+ */
 var strategyMinMax = () => {
+  const min_strategy = (value) => {
+    return Math.floor(value / 10) * 10
+  }
+
+  const max_strategy = (value) => {
+    return Math.ceil(value / 10) * 10
+  }
+
+  return {
+    min: min_strategy,
+    max: max_strategy
+  }
+}
+
+/**
+ * Strategy to round float values (2 digits)
+ * - min is included
+ * - max is excluded
+ * @return {[min, max]} return 2 functions
+ */
+  var strategyMinPercent = () => {
     const min_strategy = (value) => {
-      return Math.floor(value / 10) * 10
+      return Math.floor(value * 10) / 10
     }
 
     const max_strategy = (value) => {
-      return Math.ceil(value / 10) * 10
+      return Math.floor(value * 10) / 10
+    }
+
+    return {
+      min: min_strategy,
+      max: max_strategy
+    }
+}
+/**
+ * Strategy to round float values (2 digits)
+ * - min is included
+ * - max is also included
+ * @return {{min, max}} return 2 functions
+ */
+var strategyMinMaxPercent = () => {
+    const min_strategy = (value) => {
+      return Math.floor(value * 10) / 10
+    }
+
+    const max_strategy = (value) => {
+      return Math.ceil(value * 10) / 10
     }
 
     return {
@@ -27,8 +81,6 @@ var strategyMinMax = () => {
       max: max_strategy
     }
   }
-
-
 
 /**
  * Represent a statistic mathematical classe / range
@@ -66,11 +118,12 @@ class Classe{
  * - median, min, max, quartiles, list of classes, ...
  */
 export class Stat {
-  constructor(values){
+  constructor(values, type = 'discrete'){
     // console.log(values)
     if(values.length === 0){
       throw "Stat: you must pass a non empty array of values"
     }
+    this.type = type
     this.values = values.sort((a,b) => {return a - b})
   }
 
@@ -114,6 +167,9 @@ export class Stat {
 
   getNbrPerQuartile(nbrClasse, total){
     const x = total / nbrClasse
+    const decimals = x - Math.floor(x)
+
+    // console.log(decimals)
 
     if(x === Math.floor(x)){
       return x
@@ -132,7 +188,7 @@ export class Stat {
   quantile(nb_classe){
     const result = []
     const total = this.values.length;
-    const nb_per_classe = this.getNbrPerQuartile(nb_classe, total)
+    let nb_per_classe = this.getNbrPerQuartile(nb_classe, total)
 
     if(nb_classe > total){
       throw "nbrClasse > total. It must be less or equal"
@@ -153,6 +209,25 @@ export class Stat {
       index += nb_per_classe
     }
 
+    while(result.length < nb_classe){
+      result.length = 0
+      --nb_per_classe
+      index = nb_per_classe
+
+      const min = this.values[0] - 0.01
+      const max = (this.values[index - 1] + this.values[index]) / 2
+
+      result.push(new Classe(min, max))
+
+      while(index < total){
+        const min = (this.values[index - 1] + this.values[index]) / 2
+        const max = (this.values[index + nb_per_classe - 1] + this.values[index + nb_per_classe]) / 2
+        result.push(new Classe(min,max))
+
+        index += nb_per_classe
+      }
+    }
+
     //Remove extra classe (edge case)
     if(result.length > nb_classe){
       result.pop()
@@ -162,11 +237,19 @@ export class Stat {
     result[result.length-1].max = this.values[total - 1] + 0.01
 
     //Set round strategies
-    for(let i = 0; i < result.length - 1; i++){
-      result[i].roundStrategy(strategyMin)
-    }
+    if(this.type === 'discrete'){
+      for(let i = 0; i < result.length - 1; i++){
+        result[i].roundStrategy(strategyMin)
+      }
 
-    result[result.length - 1].roundStrategy(strategyMinMax)
+      result[result.length - 1].roundStrategy(strategyMinMax)
+    } else {
+      for(let i = 0; i < result.length - 1; i++){
+        result[i].roundStrategy(strategyMinPercent)
+      }
+
+      result[result.length - 1].roundStrategy(strategyMinMaxPercent)
+    }
 
     return result
   }
