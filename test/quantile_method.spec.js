@@ -58,7 +58,7 @@ describe('Statistic: quantile method with float values', function() {
       chai.expect(minValues).to.deep.equal(["2.33", "5.67", "29.21", "56.50", "80.72"])
 
       const maxValues = result.map(c => {return c.max.toFixed(2)})
-      chai.expect(maxValues).to.deep.equal(["5.67", "29.21", "56.50", "80.72", "100.01"])
+      chai.expect(maxValues).to.deep.equal(["5.67", "29.21", "56.50", "80.72", "100.00"])
     });
   });
 });

@@ -28,7 +28,7 @@ var strategyMin= () => {
  */
 var strategyMinMax = () => {
   const min_strategy = (value) => {
-    return Math.floor(value / 10) * 10
+    return Math.max(Math.floor(value / 10) * 10, 0)
   }
 
   const max_strategy = (value) => {
@@ -221,6 +221,22 @@ export class Stat {
     return Math.ceil(x)
   }
 
+  getMin(valueMin){
+    if(this.type === 'discrete' || this.type === 'percent'){
+      return Math.max(0, valueMin)
+    }
+
+    return valueMin
+  }
+
+  getMax(valueMax){
+    if(this.type === 'percent'){
+      return Math.min(100, valueMax)
+    }
+
+    return valueMax
+  }
+
   /**
    * Distribute values equally between a number of classes by return a list of classes
    * @param  {integer} nb_classe number of classes
@@ -255,7 +271,7 @@ export class Stat {
       --nb_per_classe
       index = nb_per_classe
 
-      const min = this.values[0] - 0.01
+      const min = this.getMin(this.values[0] - 0.01)
       const max = (this.values[index - 1] + this.values[index]) / 2
 
       result.push(new Classe(min, max))
@@ -275,7 +291,7 @@ export class Stat {
     }
 
     //The max value for the upper classe is higher to the max value
-    result[result.length-1].max = this.values[total - 1] + 0.01
+    result[result.length-1].max = this.getMax(this.values[total - 1] + 0.01)
 
     //Set round strategies
     if(this.type === 'discrete'){
