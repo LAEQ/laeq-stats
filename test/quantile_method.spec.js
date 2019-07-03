@@ -39,13 +39,13 @@ describe('Statistic: quantile method with integer values', function() {
 describe('Statistic: quantile method with float values', function() {
   describe('quantile with odd number of classe', function() {
     it('Case: 5 values - 3 classes', function() {
-      const stat = new Stat([1.23,3.67,8.89,53.24], 'percent')
+      const stat = new Stat([0, 3.67,8.89,53.24], 'percent')
       const result = stat.quantile(3)
 
       chai.expect(result).excluding('roundStrategy').to.deep.equal(
         [
-          { min: 1.22, max: 2.45},
-          { min: 2.45, max: 6.28},
+          { min: 0, max: 1.835},
+          { min: 1.835, max: 6.28},
           { min:6.28, max:53.25}
         ]
       );

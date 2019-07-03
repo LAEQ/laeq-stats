@@ -63,7 +63,6 @@ describe('Statistic: round strategy', function() {
         chai.expect(minValues).to.eql([1.20, 2.40, 6.20])
         let maxValues = result.map(c => {return c.getMax()})
         chai.expect(maxValues).to.eql([2.40, 6.2, 53.3])
-
       });
     });
   });

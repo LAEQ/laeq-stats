@@ -253,7 +253,7 @@ export class Stat {
 
     let index = nb_per_classe
 
-    const min = this.values[0] - 0.01
+    const min = this.getMin(this.values[0] - 0.01)
     const max = (this.values[index - 1] + this.values[index]) / 2
 
     result.push(new Classe(min, max))
