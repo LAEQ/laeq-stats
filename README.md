@@ -1,5 +1,12 @@
 # Library to perform statistical calculation
 
+### Build status
+
+| Branch | status |
+| ------------- | ------------- |
+| Master  |  ![build status](https://travis-ci.com/LAEQ/laeq-stats.svg?branch=master)|
+
+
 Library to generate statistical classes (quantile, jenks, ...) from a list of values (integer, float).
 
 ```js
