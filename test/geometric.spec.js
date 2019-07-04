@@ -2,6 +2,8 @@ import * as chai from 'chai';
 import chaiExclude from 'chai-exclude';
 import { Stat, Classe } from '../index.js'
 
+chai.use(chaiExclude);
+
 describe('Statistic: geometric', function() {
   describe('Test geometric discretisation', function() {
     it('Case: integer values 5 classes', function() {
@@ -17,15 +19,6 @@ describe('Statistic: geometric', function() {
           {min: 238.71, max: 789.01}
         ]
       );
-
-      let values = result.map( c => { return {min: c.getMin(), max: c.getMax()} })
-      chai.expect(values).to.be.eql([
-        {min: 2, max: 7},
-        {min: 7, max: 22},
-        {min: 22, max: 72},
-        {min: 72, max: 239},
-        {min: 239, max: 790},
-      ])
     });
   });
 })
@@ -46,18 +39,6 @@ describe('Statistic: geometric', function() {
           {min: 226.94, max: 567.01}
         ]
       );
-
-      let values = result.map( c => { return {min: c.getMin(), max: c.getMax()} })
-      chai.expect(values).to.be.eql(
-        [
-          {min: 2.3, max: 5.8},
-          {min: 5.8, max: 14.5},
-          {min: 14.5, max: 36.4},
-          {min: 36.4, max: 90.8},
-          {min: 90.8, max: 226.9},
-          {min: 226.9, max: 567.1}
-        ]
-      )
     });
   });
 })
