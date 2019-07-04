@@ -7,11 +7,11 @@
  */
 var strategyMin= () => {
   const min_strategy = (value) => {
-    return Math.floor(value / 10) * 10
+    return Number(value.toFixed(0))
   }
 
   const max_strategy = (value) => {
-    return Math.floor(value / 10) * 10
+    return Number(value.toFixed(0))
   }
 
   return {
@@ -28,7 +28,7 @@ var strategyMin= () => {
  */
 var strategyMinMax = () => {
   const min_strategy = (value) => {
-    return Math.floor(value / 10) * 10
+    return Number(value.toFixed(0))
   }
 
   const max_strategy = (value) => {
@@ -190,6 +190,22 @@ class Stat {
     return new Stat(this.values.slice(0, Math.floor(this.values.length / 2))).median()
   }
 
+  mean(){
+    if(this.size() === 0){
+      return 0
+    }
+
+    return this.total() / this.size()
+  }
+
+  total(){
+    const total =  this.values.reduce((acc, curr) => {
+      return acc + curr
+    })
+
+    return total
+  }
+
   thirdQuartile(){
     if(this.isEven()){
       return new Stat(this.values.slice(this.values.length / 2, this.values.length)).median()
@@ -209,8 +225,6 @@ class Stat {
   getNbrPerQuartile(nbrClasse, total){
     const x = total / nbrClasse
     const decimals = x - Math.floor(x)
-
-    // console.log(decimals)
 
     if(x === Math.floor(x)){
       return x
@@ -237,8 +251,95 @@ class Stat {
     return value
   }
 
+  toFixed(floatValue, precision = 2){
+    return Number(floatValue.toFixed(precision))
+  }
+
+  size(){
+    return this.values.length
+  }
+
+  variance(){
+    const mean = this.mean()
+    const variance = this.values.reduce((acc, curr) => {
+      return acc + Math.pow(curr - mean, 2)
+    }, 0) / this.size()
+
+    return this.toFixed(variance, 4)
+  }
+
+  std_dev(){
+    return this.toFixed(Math.pow(this.variance(), 0.5), 4)
+  }
+
+  geometric(nb_classe){
+    const result = []
+    const min = this.min()
+    const max = this.max()
+
+    const amplitude = this.toFixed((max - min) / nb_classe)
+
+    if(min <= 0 ){
+      throw "Geometric discretisation cannot be done with null or negative values"
+    }
+
+    const logMin = Math.log(min)/Math.log(10)
+    const logMax = Math.log(max)/Math.log(10)
+    const logReason = (logMax - logMin) / nb_classe
+    const reason = Math.pow(10, logReason)
+
+    const maxValue = this.toFixed(min * reason)
+    let cls_prev = new Classe(min, maxValue)
+    let cls_next
+
+    result.push(cls_prev)
+
+    for(let i = 1; i < nb_classe; i++){
+      const max = this.toFixed(cls_prev.max * reason)
+      cls_next = new Classe(cls_prev.max, max)
+      result.push(cls_next)
+
+      cls_prev = cls_next
+    }
+
+    cls_prev.max = this.maxValue(this.max() + 0.01)
+
+    return this.setStrategies(result)
+  }
+
   /**
-   * Distribute values equally between a number of classes by return a list of classes
+   * Geometric distribution
+   * https://en.wikipedia.org/wiki/Geometric_distribution
+   * @param  {[type]} nb_classe [description]
+   * @return {[type]}           [description]
+   */
+  equalAmplitude(nb_classe){
+    const result = []
+    const min = this.min()
+    const max = this.max()
+
+    const amplitude = this.toFixed((max - min) / nb_classe)
+
+    let cls_prev = new Classe(this.minValue(min), this.toFixed(min + amplitude))
+    let cls_next
+
+    result.push(cls_prev)
+
+    for(let i = 1; i < nb_classe; i++){
+      cls_next = new Classe(cls_prev.max, this.toFixed(cls_prev.max + amplitude))
+      result.push(cls_next)
+
+      cls_prev = cls_next
+    }
+
+    //The max value for the upper classe is higher to the max value
+    cls_prev.max = this.maxValue(this.max() + 0.01)
+
+    return this.setStrategies(result)
+  }
+
+  /**
+   * Distribute values equally between a number of classes
    * @param  {integer} nb_classe number of classes
    * @return {[classe]} list of bounded classes
    */
@@ -253,47 +354,49 @@ class Stat {
 
     let index = nb_per_classe
 
-    const min = this.minValue(this.values[0] - 0.01)
-    const max = (this.values[index - 1] + this.values[index]) / 2
-
-    result.push(new Classe(min, max))
-
-    while(index < total){
-      const min = (this.values[index - 1] + this.values[index]) / 2
-      const max = (this.values[index + nb_per_classe - 1] + this.values[index + nb_per_classe]) / 2
-      result.push(new Classe(min,max))
-
-      index += nb_per_classe
-    }
-
+    // Some distributions cannot be resolve within one single loop:
+    // Ex: 16 values to distribute in 5 classes -> nb_per_classe = 3 or 4 ??
+    //    => [3][3][3][3][3] or [4][4][4][4] (we either miss one classe or miss one value)
+    // This loop implementation gives: [3][3][3][3][4]
     while(result.length < nb_classe){
       result.length = 0
-      --nb_per_classe
+
       index = nb_per_classe
 
       const min = this.minValue(this.values[0] - 0.01)
       const max = (this.values[index - 1] + this.values[index]) / 2
 
-      result.push(new Classe(min, max))
+      let cls_prev = new Classe(min, max)
+      let cls_next
+
+      result.push(cls_prev)
 
       while(index < total){
-        const min = (this.values[index - 1] + this.values[index]) / 2
         const max = (this.values[index + nb_per_classe - 1] + this.values[index + nb_per_classe]) / 2
-        result.push(new Classe(min,max))
+        cls_next = new Classe(cls_prev.max, max)
+
+        result.push(cls_next)
 
         index += nb_per_classe
+        cls_prev = cls_next
       }
+
+      --nb_per_classe
     }
 
-    //Remove extra classe (edge case)
+    //Remove extra classe (edge case mentionned above)
     if(result.length > nb_classe){
       result.pop()
     }
 
-    //The max value for the upper classe is higher to the max value
-    result[result.length-1].max = this.maxValue(this.values[total - 1] + 0.01)
+    //Safe guard: make sur the last classe includes the max value of the set
+    result[result.length-1].max = this.maxValue(this.max() + 0.01)
 
     //Set round strategies
+    return this.setStrategies(result)
+  }
+
+  setStrategies(result){
     if(this.type === 'discrete'){
       for(let i = 0; i < result.length - 1; i++){
         result[i].roundStrategy(strategyMin)
