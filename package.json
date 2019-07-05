@@ -19,6 +19,7 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/register": "^7.4.4",
     "chai": "^4.2.0",
+    "chai-almost": "^1.0.1",
     "chai-exclude": "^2.0.1",
     "mocha": "^6.1.4",
     "nodemon": "^1.19.1"

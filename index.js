@@ -1,181 +1,5 @@
 
-/**
- * Strategy to round the first classe of integer values
- * @return {function min, function max} return 2 public methods min(), max()
- */
- var strategyFirstDiscrete= () => {
-   const min_strategy = (value) => {
-     if(value < 10){
-       return 0
-     }
-
-     return Math.floor(value / 10) * 10
-   }
-
-   const max_strategy = (value) => {
-     return Math.ceil(value / 10) * 10
-   }
-
-   return {
-     min: min_strategy,
-     max: max_strategy
-   }
- }
-
-/**
- * Strategy to round the middle classes of integer values
- * @return {function min, function max} return 2 public methods min(), max()
- */
-var strategyDiscrete = () => {
-  const min_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
-  }
-
-  const max_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
-  }
-
-  return {
-    min: min_strategy,
-    max: max_strategy
-  }
-}
-
-/**
- * Strategy to round the upper classes integer values
- *  - min is included
- *  - max is also included
- * @return {[min, max]}
- */
-var strategyLastDiscrete = () => {
-  const min_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
-  }
-
-  const max_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
-  }
-
-  return {
-    min: min_strategy,
-    max: max_strategy
-  }
-}
-
-/**
- * Strategy to round the first class of percent values (2 digits)
- * @return {function min, function max} return 2 public methods min(), max()
- */
-  var strategyFirstPercent = () => {
-    const min_strategy = (value) => {
-      return Math.max(Math.floor(value * 10) / 10, 0)
-    }
-
-    const max_strategy = (value) => {
-      return Math.floor(value * 100) / 100
-    }
-
-    return {
-      min: min_strategy,
-      max: max_strategy
-    }
-}
-
-/**
- * Strategy to round float values (2 digits)
- * @return {function min, function max} return 2 public methods min(), max()
- */
-var strategyPercent = () => {
-    const min_strategy = (value) => {
-      return Math.floor(value * 100) / 100
-    }
-
-    const max_strategy = (value) => {
-      return Math.ceil(value * 100) / 100
-    }
-
-    return {
-      min: min_strategy,
-      max: max_strategy
-    }
-  }
-
-/**
- * Strategy to round float values (2 digits)
- * @return {function min, function max} return 2 public methods min(), max()
- */
-var strategyLastPercent = () => {
-  const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
-  }
-
-  const max_strategy = (value) => {
-    return Math.min(Math.ceil(value * 100) / 100, 100)
-  }
-
-  return {
-    min: min_strategy,
-    max: max_strategy
-  }
-}
-
-/**
- * Strategy to round first classe of rate values (2 digits)
- * @return {function min, function max} return 2 public methods min(), max()
- */
-var strategyFirstRate= () => {
-  const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
-  }
-
-  const max_strategy = (value) => {
-    return Math.floor(value * 100) / 100
-  }
-
-  return {
-    min: min_strategy,
-    max: max_strategy
-  }
-}
-
-/**
- * Strategy to round middles classes of rate values (2 digits)
- * @return {function min, function max} return 2 public methods min(), max()
- */
-var strategyRate = () => {
-  const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
-  }
-
-  const max_strategy = (value) => {
-    return Math.floor(value * 100) / 100
-  }
-
-  return {
-    min: min_strategy,
-    max: max_strategy
-  }
-}
-
-/**
- * Strategy to round upper classe of rate values (2 digits)
- * @return {function min, function max} return 2 public methods min(), max()
- */
-var strategyLastRate = () => {
-  const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
-  }
-
-  const max_strategy = (value) => {
-    return Math.ceil(value * 100) / 100
-  }
-
-  return {
-    min: min_strategy,
-    max: max_strategy
-  }
-}
-
+import * as roundStrategy from './round_strategy.js'
 /**
  * Represent a statistic mathematical classe / range
  * @param min
@@ -326,7 +150,7 @@ class Stat {
       return acc + Math.pow(curr - mean, 2)
     }, 0) / this.size()
 
-    return this.toFixed(variance, 4)
+    return variance
   }
 
   /**
@@ -334,10 +158,103 @@ class Stat {
    * @return {[Number]} the square root of the variance
    */
   std_dev(){
-    return this.toFixed(Math.pow(this.variance(), 0.5), 4)
+    return this.toFixed(Math.sqrt(this.variance()), 4)
   }
 
+  /**
+   * Standard deviation distribution
+   *
+   * Generate classes with their max - min = std_dev
+   *
+   * @return {[Classe]} array of classes
+   */
   standardDeviation(){
+    let result = []
+    const mean = this.mean()
+    const std_dev = this.std_dev()
+    let index = 1
+
+    //Case: Values < median
+    let max = mean
+    let min = Math.max(this.min(), mean - (index * std_dev))
+
+    while(min > this.min()){
+      result.push(new Classe(min, max))
+      max = min
+      min = Math.max(this.min(), mean - (++index * std_dev))
+    }
+
+    result.push(new Classe(this.minValue(min - 0.01), max))
+
+    //Case: Values >  median
+    index = 1
+    min = mean
+    max = Math.min(this.max(), mean + (index * std_dev))
+
+    while(max < this.max()){
+      result.push(new Classe(min, max))
+      min = max
+      max = Math.min(this.max(), mean + (++index * std_dev))
+    }
+
+    result.push(new Classe(min, max))
+
+    this.setStrategies(result)
+
+    return result.sort((a, b) => a.min - b.min)
+  }
+
+  standardDeviation_tmp(nb_classe = 5){
+    //Note: nb_classe >= 5 && nb_classe <= 6
+    nb_classe = Math.max(nb_classe, 5)
+    nb_classe = Math.min(nb_classe, 6)
+
+    let result = []
+
+    const mean = this.mean()
+    const std_dev = this.std_dev()
+
+    if(nb_classe === 5){
+        let indexes = [-1.5, -0.5, 0.5, 1.5]
+        let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
+          cls_next
+
+          result.push(cls_prev)
+
+        for(let i = 1; i < indexes.length; i++){
+              cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
+              result.push(cls_next)
+              cls_prev = cls_next
+        }
+
+        result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
+      } else {
+        let indexes = [-2, -1, 0, 1, 2]
+        let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
+          cls_next
+
+          result.push(cls_prev)
+
+        for(let i = 1; i < indexes.length; i++){
+              cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
+              result.push(cls_next)
+              cls_prev = cls_next
+        }
+
+        result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
+      }
+
+      //Remove classes with outside bounds
+      result = result.filter( c => { return c.min >= this.min() && c.max <= this.max()}).sort((a,b) => {return a.min - b.min})
+
+      console.log(result)
+
+      this.setStrategies(result)
+
+      return result
+  }
+
+  jenks(nb_classe){
 
   }
 
@@ -495,24 +412,24 @@ class Stat {
 
   setStrategies(result){
     let strategies = {
-      'lower': strategyFirstPercent(),
-      'middle': strategyPercent(),
-      'upper': strategyLastPercent(),
-      'single': strategyFirstPercent()
+      'lower': roundStrategy.strategyFirstPercent(),
+      'middle': roundStrategy.strategyPercent(),
+      'upper': roundStrategy.strategyLastPercent(),
+      'single': roundStrategy.strategyFirstPercent()
     }
 
     switch(this.type){
       case 'rate':
-        strategies.lower = strategyFirstRate(),
-        strategies.middle = strategyRate(),
-        strategies.upper = strategyLastRate(),
-        strategies.single = strategyFirstRate()
+        strategies.lower = roundStrategy.strategyFirstRate(),
+        strategies.middle = roundStrategy.strategyRate(),
+        strategies.upper = roundStrategy.strategyLastRate(),
+        strategies.single = roundStrategy.strategyFirstRate()
       break;
       case 'discrete':
-        strategies.lower = strategyFirstDiscrete(),
-        strategies.middle = strategyDiscrete(),
-        strategies.upper = strategyLastDiscrete(),
-        strategies.single = strategyFirstDiscrete()
+        strategies.lower = roundStrategy.strategyFirstDiscrete(),
+        strategies.middle = roundStrategy.strategyDiscrete(),
+        strategies.upper = roundStrategy.strategyLastDiscrete(),
+        strategies.single = roundStrategy.strategyFirstDiscrete()
       break;
     }
 

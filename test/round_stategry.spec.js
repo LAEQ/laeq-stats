@@ -1,7 +1,8 @@
 import * as chai from 'chai';
 import { Stat } from '../index.js'
 
-
+import chaiAlmost from 'chai-almost'
+chai.use(chaiAlmost(0.000001))
 
 describe('Round strategy', function() {
   describe('Discrete values', function() {
