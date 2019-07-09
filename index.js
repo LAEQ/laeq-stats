@@ -142,15 +142,13 @@ class Stat {
 
   /**
    * Return the variance for the population (not the sample one)
-   * @return {[type]}  E(x - mean)2
+   * @return {[type]}  (x - mean)2
    */
   variance(){
     const mean = this.mean()
-    const variance = this.values.reduce((acc, curr) => {
+    return  this.values.reduce((acc, curr) => {
       return acc + Math.pow(curr - mean, 2)
     }, 0) / this.size()
-
-    return variance
   }
 
   /**
@@ -204,58 +202,137 @@ class Stat {
     return result.sort((a, b) => a.min - b.min)
   }
 
-  standardDeviation_tmp(nb_classe = 5){
-    //Note: nb_classe >= 5 && nb_classe <= 6
-    nb_classe = Math.max(nb_classe, 5)
-    nb_classe = Math.min(nb_classe, 6)
-
-    let result = []
-
-    const mean = this.mean()
-    const std_dev = this.std_dev()
-
-    if(nb_classe === 5){
-        let indexes = [-1.5, -0.5, 0.5, 1.5]
-        let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
-          cls_next
-
-          result.push(cls_prev)
-
-        for(let i = 1; i < indexes.length; i++){
-              cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
-              result.push(cls_next)
-              cls_prev = cls_next
-        }
-
-        result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
-      } else {
-        let indexes = [-2, -1, 0, 1, 2]
-        let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
-          cls_next
-
-          result.push(cls_prev)
-
-        for(let i = 1; i < indexes.length; i++){
-              cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
-              result.push(cls_next)
-              cls_prev = cls_next
-        }
-
-        result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
-      }
-
-      //Remove classes with outside bounds
-      result = result.filter( c => { return c.min >= this.min() && c.max <= this.max()}).sort((a,b) => {return a.min - b.min})
-
-      console.log(result)
-
-      this.setStrategies(result)
-
-      return result
-  }
+  // standardDeviation_tmp(nb_classe = 5){
+  //   //Note: nb_classe >= 5 && nb_classe <= 6
+  //   nb_classe = Math.max(nb_classe, 5)
+  //   nb_classe = Math.min(nb_classe, 6)
+  //
+  //   let result = []
+  //
+  //   const mean = this.mean()
+  //   const std_dev = this.std_dev()
+  //
+  //   if(nb_classe === 5){
+  //       let indexes = [-1.5, -0.5, 0.5, 1.5]
+  //       let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
+  //         cls_next
+  //
+  //         result.push(cls_prev)
+  //
+  //       for(let i = 1; i < indexes.length; i++){
+  //             cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
+  //             result.push(cls_next)
+  //             cls_prev = cls_next
+  //       }
+  //
+  //       result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
+  //     } else {
+  //       let indexes = [-2, -1, 0, 1, 2]
+  //       let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
+  //         cls_next
+  //
+  //         result.push(cls_prev)
+  //
+  //       for(let i = 1; i < indexes.length; i++){
+  //             cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
+  //             result.push(cls_next)
+  //             cls_prev = cls_next
+  //       }
+  //
+  //       result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
+  //     }
+  //
+  //     //Remove classes with outside bounds
+  //     result = result.filter( c => { return c.min >= this.min() && c.max <= this.max()}).sort((a,b) => {return a.min - b.min})
+  //
+  //
+  //     this.setStrategies(result)
+  //
+  //     return result
+  // }
 
   jenks(nb_classe){
+    if(nb_classe < 1){
+      return
+    }
 
+    let result = []
+    var mat1 = []
+		for ( var x = 0, xl = this.values.length + 1; x < xl; x++) {
+			var temp = []
+			for ( var j = 0, jl = nb_classe + 1; j < jl; j++) {
+				temp.push(0)
+			}
+			mat1.push(temp)
+		}
+
+    var mat2 = []
+		for ( var i = 0, il = this.values.length + 1; i < il; i++) {
+			var temp2 = []
+			for ( var c = 0, cl = nb_classe + 1; c < cl; c++) {
+				temp2.push(0)
+			}
+			mat2.push(temp2)
+		}
+
+    for ( var y = 1, yl = nb_classe + 1; y < yl; y++) {
+			mat1[0][y] = 1
+			mat2[0][y] = 0
+			for ( var t = 1, tl = this.values.length + 1; t < tl; t++) {
+				mat2[t][y] = Infinity
+			}
+			var v = 0.0
+		}
+
+    for ( var l = 2, ll = this.size() + 1; l < ll; l++) {
+			var s1 = 0.0
+			var s2 = 0.0
+			var w = 0.0
+			for ( var m = 1, ml = l + 1; m < ml; m++) {
+				var i3 = l - m + 1
+				var val = parseFloat(this.values[i3 - 1])
+				s2 += val * val
+				s1 += val
+				w += 1
+				v = s2 - (s1 * s1) / w
+				var i4 = i3 - 1
+				if (i4 != 0) {
+					for ( var p = 2, pl = nb_classe + 1; p < pl; p++) {
+						if (mat2[l][p] >= (v + mat2[i4][p - 1])) {
+							mat1[l][p] = i3
+							mat2[l][p] = v + mat2[i4][p - 1]
+						}
+					}
+				}
+			}
+			mat1[l][1] = 1
+			mat2[l][1] = v
+		}
+
+		var k = this.size()
+		var kclass = []
+
+		for (i = 0; i <= nb_classe; i++) {
+			kclass.push(0);
+		}
+
+		kclass[nb_classe] = parseFloat(this.max())
+
+		kclass[0] = this.min()
+		var countNum = nb_classe
+		while (countNum >= 2) {
+			var id = parseInt((mat1[k][countNum]) - 2)
+			kclass[countNum - 1] = this.values[id]
+			k = parseInt((mat1[k][countNum] - 1))
+
+			countNum -= 1
+		}
+
+		if (kclass[0] == kclass[1]) {
+			kclass[0] = 0
+		}
+
+    return this.generateClasses(kclass)
   }
 
   geometric(nb_classe){
@@ -328,84 +405,68 @@ class Stat {
     return result
   }
 
+  getQuantiles(nbClass) {
+    let quantiles = []
+		var step = this.size() / nbClass;
+		for (var i = 1; i < nbClass; i++) {
+			var qidx = Math.round(i*step+0.49);
+			quantiles.push(this.values[qidx-1]); // zero-based
+		}
+
+		return quantiles;
+	};
+
   /**
    * Distribute values equally between a number of classes
-   *
-   *  Some distributions cannot be resolve within one single loop:
-   *  Ex: 16 values to distribute in 5 classes -> nb_per_classe = 3 or 4 ??
-   *    => [3][3][3][3][3] or [4][4][4][4] (we either miss one classe or miss one value)
-   *    Solution: split the uppers classes: [3][3][3][3][4]
+   * Note: the last classe might contains more values if Math.floor(this.size() / nb_classe) !== this.size() / nb_classe
    *
    * @param  {integer} nb_classe number of classes
    * @return {[classe]} list of bounded classes
    */
   quantile(nb_classe){
     let result = []
-    const total = this.values.length;
-    let nb_per_classe = this.getNbrPerQuartile(nb_classe, total)
+    let quantiles = this.getQuantiles(nb_classe)
 
-    if(nb_classe > total){
-      throw "nbrClasse > total. It must be less or equal"
+    quantiles.unshift(this.min());
+
+		if (quantiles[quantiles.length - 1] !== this.max()){
+			quantiles.push(this.max());
     }
 
-    //First classe
-    let index = nb_per_classe
-    const min = this.minValue(this.values[0] - 0.01)
-    const max = (this.values[index - 1] + this.values[index]) / 2
+    return this.generateClasses(quantiles)
+  }
+  /**
+   * Generate the classes from an array of bounds
+   * @param  {[Numbers]} bounds array of numbers
+   * @return {[Classes]}  array of classes
+   */
+  generateClasses(bounds){
+    let result = []
 
-    let cls_prev = new Classe(min, max), cls_next
+    if(bounds.length === 0){
+      return
+    } else if(bounds.lenght < 2){
+      throw "Stat Cannot generate classes. Must have at least 2 values."
+    }
+
+    let cls_prev = new Classe(
+      this.minValue(this.min() - 0.01),
+      bounds[1]
+    )
+
     result.push(cls_prev)
 
-    //Generate the other classes
-    while(index < total){
-      const max = (this.values[index + nb_per_classe - 1] + this.values[index + nb_per_classe]) / 2
-      cls_next = new Classe(cls_prev.max, max)
+    let cls_next
 
+    for(let i = 2; i < bounds.length; i++){
+      cls_next = new Classe(cls_prev.max, bounds[i])
       result.push(cls_next)
-
-      index += nb_per_classe
       cls_prev = cls_next
     }
 
-    //The upper classe should include the max value
-    result[result.length-1].max = this.maxValue(this.max() + 0.01)
+    cls_prev.max = this.maxValue(this.max() + 0.01)
 
-    //Edge case: nb_per_classe is too high then the algo does not create enough classes
-    //Solution: split the upper classes to create enough of them
-
-    const totalMissing = nb_classe - result.length
-    // console.log
-    if(totalMissing > 0){
-      result = this.quantileEdgeCase(totalMissing + 1, result)
-    }
-
-    //Set round strategies
     this.setStrategies(result)
-
-    return result
-  }
-
-  quantileEdgeCase(nbrClasseToAdd, result){
-    const start = result.length - nbrClasseToAdd
-
-    //Get values min and max for splitting the classes
-    let minMaxValues = result.splice(start, result.length).reduce((acc, curr) => {
-        return {
-          min: Math.min(acc.min, curr.min),
-          max: Math.max(acc.max, curr.max)
-        }
-    })
-
-    let step = (minMaxValues.max - minMaxValues.min) / ++nbrClasseToAdd
-    let min = minMaxValues.min
-    let max = min + step
-
-    while(nbrClasseToAdd > 0){
-      result.push(new Classe(this.toFixed(min, 2), this.toFixed(max, 2)))
-      min = max
-      max += step
-      nbrClasseToAdd--
-    }
 
     return result
   }

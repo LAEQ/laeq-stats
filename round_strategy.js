@@ -4,15 +4,14 @@
  */
  var strategyFirstDiscrete= () => {
    const min_strategy = (value) => {
-     if(value < 10){
-       return 0
-     }
-
-     return Math.floor(value / 10) * 10
+     return undefined
    }
 
    const max_strategy = (value) => {
-     return Math.ceil(value / 10) * 10
+     if(value <= 10){
+       return value
+     }
+     return Math.floor(value / 10) * 10
    }
 
    return {
@@ -27,11 +26,15 @@
  */
 var strategyDiscrete = () => {
   const min_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
+    return undefined
   }
 
   const max_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
+    if(value <= 10){
+      return value
+    }
+    return Math.floor(value / 10) * 10
+
   }
 
   return {
@@ -48,7 +51,7 @@ var strategyDiscrete = () => {
  */
 var strategyLastDiscrete = () => {
   const min_strategy = (value) => {
-    return Math.ceil(value / 10) * 10
+    return undefined
   }
 
   const max_strategy = (value) => {
@@ -65,13 +68,14 @@ var strategyLastDiscrete = () => {
  * Strategy to round the first class of percent values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
-  var strategyFirstPercent = () => {
+  var strategyFirstPercent = (prec = 2) => {
+    const precision = prec
     const min_strategy = (value) => {
-      return Math.max(Math.floor(value * 10) / 10, 0)
+      return Math.floor(value * Math.pow(10, precision)) / Math.pow(10, precision)
     }
 
     const max_strategy = (value) => {
-      return Math.floor(value * 100) / 100
+      return Math.floor(value * Math.pow(10, precision) - 1) / Math.pow(10, precision)
     }
 
     return {
@@ -84,13 +88,14 @@ var strategyLastDiscrete = () => {
  * Strategy to round float values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
-var strategyPercent = () => {
+var strategyPercent = (prec = 2) => {
+  const precision = prec
     const min_strategy = (value) => {
-      return Math.floor(value * 100) / 100
+      return (Math.floor(value * Math.pow(10, precision))) / Math.pow(10, 2)
     }
 
     const max_strategy = (value) => {
-      return Math.ceil(value * 100) / 100
+      return Math.floor(value * Math.pow(10, precision) - 1) / Math.pow(10, precision)
     }
 
     return {
@@ -103,13 +108,14 @@ var strategyPercent = () => {
  * Strategy to round float values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
-var strategyLastPercent = () => {
+var strategyLastPercent = (prec = 2) => {
+  const precision = prec
   const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
+    return (Math.floor(value * Math.pow(10, precision))) / Math.pow(10, precision)
   }
 
   const max_strategy = (value) => {
-    return Math.min(Math.ceil(value * 100) / 100, 100)
+    return (Math.floor(value * Math.pow(10, precision)) + 1) / Math.pow(10, precision)
   }
 
   return {
@@ -122,13 +128,14 @@ var strategyLastPercent = () => {
  * Strategy to round first classe of rate values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
-var strategyFirstRate= () => {
+var strategyFirstRate= (prec = 2) => {
+  const precision = prec
   const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
+    return Math.floor(value * Math.pow(10, precision)) / Math.pow(10, precision)
   }
 
   const max_strategy = (value) => {
-    return Math.floor(value * 100) / 100
+    return (Math.floor(value * Math.pow(10, precision)) -1 )  / Math.pow(10, precision)
   }
 
   return {
@@ -141,13 +148,14 @@ var strategyFirstRate= () => {
  * Strategy to round middles classes of rate values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
-var strategyRate = () => {
+var strategyRate = (prec = 2) => {
+  const precision = prec
   const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
+    return (Math.floor(value * Math.pow(10, precision))) / Math.pow(10, precision)
   }
 
   const max_strategy = (value) => {
-    return Math.floor(value * 100) / 100
+    return (Math.floor(value * Math.pow(10, precision)) - 1) / Math.pow(10, precision)
   }
 
   return {
@@ -160,13 +168,14 @@ var strategyRate = () => {
  * Strategy to round upper classe of rate values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
-var strategyLastRate = () => {
+var strategyLastRate = (prec = 2) => {
+  const precision = prec
   const min_strategy = (value) => {
-    return Math.floor(value * 100) / 100
+    return (Math.floor(value * Math.pow(10, precision)) - 1) / Math.pow(10, precision)
   }
 
   const max_strategy = (value) => {
-    return Math.ceil(value * 100) / 100
+    return (Math.ceil(value * Math.pow(10, precision)) + 1) / Math.pow(10, precision)
   }
 
   return {
