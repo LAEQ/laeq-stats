@@ -171,7 +171,7 @@ var strategyRate = (prec = 2) => {
 var strategyLastRate = (prec = 2) => {
   const precision = prec
   const min_strategy = (value) => {
-    return (Math.floor(value * Math.pow(10, precision)) - 1) / Math.pow(10, precision)
+    return (Math.floor(value * Math.pow(10, precision))) / Math.pow(10, precision)
   }
 
   const max_strategy = (value) => {

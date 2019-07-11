@@ -138,8 +138,8 @@ describe('Rate values', function() {
     chai.expect(strategy.max(123.678)).to.equal(123.66)
   });
 
-  it('checks the middle strategy', function() {
-    const strategy = round_stategy.strategyRate()
+  it('checks the upper strategy', function() {
+    const strategy = round_stategy.strategyLastRate()
 
     chai.expect(strategy.min(-1.23)).to.equal(-1.23)
     chai.expect(strategy.min(-1.234)).to.equal(-1.24)
