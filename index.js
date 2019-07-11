@@ -6,16 +6,29 @@ import * as roundStrategy from './round_strategy.js'
  * @param max
  */
 class Classe{
+  /**
+   * [constructor description]
+   * @param {Number} min the minimale value
+   * @param {Number} max the maximale value
+   */
   constructor(min, max){
     this.min = min
     this.max = max
     this.roundStrategy = undefined
   }
 
+  /**
+   * Get a rounded value of the minimum
+   * @return {Number} return the min value rounded by the defined strategy
+   */
   getMin(){
     return this.roundStrategy.min(this.min)
   }
 
+  /**
+   * Get a rounded value of the maximum
+   * @return {[type]} return the max value rounded accordingly with the strategy
+   */
   getMax(){
     return this.roundStrategy.max(this.max)
   }
@@ -26,8 +39,14 @@ class Classe{
  * - median, min, max, quartiles, list of classes, ...
  */
 class Stat {
+  /**
+   * @param {[Number]} values            [description]
+   * @param {String} [type='discrete']
+   * discrete: integer positive or null
+   * percent: float [0;100]
+   * rate: float ]-Infinity, Infinity[
+   */
   constructor(values, type = 'discrete'){
-    // console.log(values)
     if(values.length === 0){
       throw "Stat: you must pass a non empty array of values"
     }
@@ -35,10 +54,18 @@ class Stat {
     this.values = values.sort((a,b) => {return a - b})
   }
 
+  /**
+   * True if list of values is even
+   * @return {Boolean}
+   */
   isEven(){
     return this.values.length % 2 === 0
   }
 
+  /**
+   * Get the median value
+   * @return {[type]} [description]
+   */
   median(){
     const middle = this.values.length / 2
     if(middle === 0){
@@ -53,10 +80,19 @@ class Stat {
 
     return (this.values[middle - 1] + this.values[middle]) / 2
   }
+
+  /**
+   * Get first quartile value
+   * @return {Number} [description]
+   */
   firstQuartile(){
     return new Stat(this.values.slice(0, Math.floor(this.values.length / 2))).median()
   }
 
+  /**
+   * Get the mean value
+   * @return {Number} [description]
+   */
   mean(){
     if(this.size() === 0){
       return 0
@@ -65,6 +101,10 @@ class Stat {
     return this.total() / this.size()
   }
 
+  /**
+   * Sum the values
+   * @return {Number}
+   */
   total(){
     const total =  this.values.reduce((acc, curr) => {
       return acc + curr
@@ -73,6 +113,10 @@ class Stat {
     return total
   }
 
+  /**
+   * Get the third quartile
+   * @return {Number}
+   */
   thirdQuartile(){
     if(this.isEven()){
       return new Stat(this.values.slice(this.values.length / 2, this.values.length)).median()
@@ -81,14 +125,28 @@ class Stat {
     return new Stat(this.values.slice(Math.ceil(this.values.length / 2), this.values.length)).median()
   }
 
+  /**
+   * Get the min value
+   * @return {[type]} [description]
+   */
   min(){
     return Math.min(...this.values)
   }
 
+  /**
+   * Get the max value
+   * @return {[type]} [description]
+   */
   max(){
     return Math.max(...this.values)
   }
 
+  /**
+   * Deprecated
+   * @param  {[type]} nbrClasse [description]
+   * @param  {[type]} total     [description]
+   * @return {[type]}           [description]
+   */
   getNbrPerQuartile(nbrClasse, total){
     const x = total / nbrClasse
     // const decimals = x - Math.floor(x)
@@ -102,6 +160,11 @@ class Stat {
     return Math.ceil(x)
   }
 
+  /**
+   * Deprecated
+   * @param  {[type]} value [description]
+   * @return {[type]}       [description]
+   */
   minValue(value){
     if(this.type === 'discrete' || this.type === 'percent'){
       return Math.max(0, value)
@@ -110,6 +173,11 @@ class Stat {
     return value
   }
 
+  /**
+   * Deprecated
+   * @param  {[type]} value [description]
+   * @return {[type]}       [description]
+   */
   maxValue(value){
     if(this.type === 'percent'){
       return Math.min(100, value)
@@ -161,9 +229,7 @@ class Stat {
 
   /**
    * Standard deviation distribution
-   *
    * Generate classes with their max - min = std_dev
-   *
    * @return {[Classe]} array of classes
    */
   standardDeviation(){
@@ -202,55 +268,13 @@ class Stat {
     return result.sort((a, b) => a.min - b.min)
   }
 
-  // standardDeviation_tmp(nb_classe = 5){
-  //   //Note: nb_classe >= 5 && nb_classe <= 6
-  //   nb_classe = Math.max(nb_classe, 5)
-  //   nb_classe = Math.min(nb_classe, 6)
-  //
-  //   let result = []
-  //
-  //   const mean = this.mean()
-  //   const std_dev = this.std_dev()
-  //
-  //   if(nb_classe === 5){
-  //       let indexes = [-1.5, -0.5, 0.5, 1.5]
-  //       let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
-  //         cls_next
-  //
-  //         result.push(cls_prev)
-  //
-  //       for(let i = 1; i < indexes.length; i++){
-  //             cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
-  //             result.push(cls_next)
-  //             cls_prev = cls_next
-  //       }
-  //
-  //       result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
-  //     } else {
-  //       let indexes = [-2, -1, 0, 1, 2]
-  //       let cls_prev = new Classe(this.min(), mean + (indexes[0] * std_dev)),
-  //         cls_next
-  //
-  //         result.push(cls_prev)
-  //
-  //       for(let i = 1; i < indexes.length; i++){
-  //             cls_next = new Classe(cls_prev.max, mean + (indexes[i] * std_dev))
-  //             result.push(cls_next)
-  //             cls_prev = cls_next
-  //       }
-  //
-  //       result.push(new Classe(cls_prev.max, this.maxValue(this.max() + 0.01)))
-  //     }
-  //
-  //     //Remove classes with outside bounds
-  //     result = result.filter( c => { return c.min >= this.min() && c.max <= this.max()}).sort((a,b) => {return a.min - b.min})
-  //
-  //
-  //     this.setStrategies(result)
-  //
-  //     return result
-  // }
-
+  /**
+   * Return the natural breaks
+   * https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization
+   *
+   * @param  {[type]} nb_classe [description]
+   * @return {[type]}           [description]
+   */
   jenks(nb_classe){
     if(nb_classe < 1){
       return
@@ -335,6 +359,11 @@ class Stat {
     return this.generateClasses(kclass)
   }
 
+  /**
+   * Geometric distribution
+   * @param  {[type]} nb_classe [description]
+   * @return {[type]}           [description]
+   */
   geometric(nb_classe){
     const result = []
     const min = this.min()
@@ -350,7 +379,6 @@ class Stat {
     const logMax = Math.log(max)/Math.log(10)
     const logReason = (logMax - logMin) / nb_classe
     const reason = Math.pow(10, logReason)
-
     const maxValue = this.toFixed(min * reason)
     let cls_prev = new Classe(min, maxValue)
     let cls_next
@@ -373,8 +401,7 @@ class Stat {
   }
 
   /**
-   * Geometric distribution
-   * https://en.wikipedia.org/wiki/Geometric_distribution
+   * Equal amplitude distribution
    * @param  {[type]} nb_classe [description]
    * @return {[type]}           [description]
    */
@@ -418,7 +445,6 @@ class Stat {
 
   /**
    * Distribute values equally between a number of classes
-   * Note: the last classe might contains more values if Math.floor(this.size() / nb_classe) !== this.size() / nb_classe
    *
    * @param  {integer} nb_classe number of classes
    * @return {[classe]} list of bounded classes
@@ -435,6 +461,7 @@ class Stat {
 
     return this.generateClasses(quantiles)
   }
+
   /**
    * Generate the classes from an array of bounds
    * @param  {[Numbers]} bounds array of numbers
@@ -471,6 +498,10 @@ class Stat {
     return result
   }
 
+  /**
+   * Strategies to round the values
+   * @param {[type]} result [description]
+   */
   setStrategies(result){
     let strategies = {
       'lower': roundStrategy.strategyFirstPercent(),
