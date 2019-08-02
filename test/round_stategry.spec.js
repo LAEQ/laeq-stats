@@ -138,7 +138,7 @@ describe('Rate values', function() {
     chai.expect(strategy.max(123.678)).to.equal(123.66)
   });
 
-  it('checks the upper strategy', function() {
+  it('checks the upper strategy prout', function() {
     const strategy = round_stategy.strategyLastRate()
 
     chai.expect(strategy.min(-1.23)).to.equal(-1.23)
@@ -148,10 +148,10 @@ describe('Rate values', function() {
     chai.expect(strategy.min(23.234)).to.equal(23.23)
     chai.expect(strategy.min(123.678)).to.equal(123.67)
 
-    chai.expect(strategy.max(-1.159)).to.equal(-1.17)
-    chai.expect(strategy.max(0.12)).to.equal(0.11)
-    chai.expect(strategy.max(0.123)).to.equal(0.11)
-    chai.expect(strategy.max(23.234)).to.equal(23.22)
-    chai.expect(strategy.max(123.678)).to.equal(123.66)
+    chai.expect(strategy.max(-1.159)).to.equal(-1.15)
+    chai.expect(strategy.max(0.12)).to.equal(0.13)
+    chai.expect(strategy.max(0.123)).to.equal(0.13)
+    chai.expect(strategy.max(23.234)).to.equal(23.24)
+    chai.expect(strategy.max(123.678)).to.equal(123.68)
   });
 });

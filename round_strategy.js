@@ -175,7 +175,7 @@ var strategyLastRate = (prec = 2) => {
   }
 
   const max_strategy = (value) => {
-    return (Math.ceil(value * Math.pow(10, precision)) + 1) / Math.pow(10, precision)
+    return ((Math.floor(value * Math.pow(10, precision))) + 1) / Math.pow(10, precision)
   }
 
   return {
