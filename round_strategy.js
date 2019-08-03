@@ -65,6 +65,27 @@ var strategyLastDiscrete = () => {
 }
 
 /**
+ * Strategy to round the upper classes integer values
+ *  - min is included
+ *  - max is also included
+ * @return {[min, max]}
+ */
+var strategyUniqueDiscrete = () => {
+  const min_strategy = (value) => {
+    return undefined
+  }
+
+  const max_strategy = (value) => {
+    return Math.ceil(value / 10) * 10
+  }
+
+  return {
+    min: min_strategy,
+    max: max_strategy
+  }
+}
+
+/**
  * Strategy to round the first class of percent values (2 digits)
  * @return {function min, function max} return 2 public methods min(), max()
  */
@@ -123,6 +144,27 @@ var strategyLastPercent = (prec = 2) => {
     max: max_strategy
   }
 }
+
+/**
+ * Strategy to round the first class of percent values (2 digits)
+ * @return {function min, function max} return 2 public methods min(), max()
+ */
+var strategyUniquePercent = (prec = 2) => {
+    const precision = prec
+    const min_strategy = (value) => {
+      return Math.floor(value * Math.pow(10, precision)) / Math.pow(10, precision)
+    }
+
+    const max_strategy = (value) => {
+      return (Math.floor(value * Math.pow(10, precision)) + 1) / Math.pow(10, precision)
+    }
+
+    return {
+      min: min_strategy,
+      max: max_strategy
+    }
+}
+
 
 /**
  * Strategy to round first classe of rate values (2 digits)
@@ -184,6 +226,26 @@ var strategyLastRate = (prec = 2) => {
   }
 }
 
+/**
+ * Strategy to round first classe of rate values (2 digits)
+ * @return {function min, function max} return 2 public methods min(), max()
+ */
+var strategyUniqueRate= (prec = 2) => {
+  const precision = prec
+  const min_strategy = (value) => {
+    return Math.floor(value * Math.pow(10, precision)) / Math.pow(10, precision)
+  }
+
+  const max_strategy = (value) => {
+    return ((Math.floor(value * Math.pow(10, precision))) + 1) / Math.pow(10, precision)
+  }
+
+  return {
+    min: min_strategy,
+    max: max_strategy
+  }
+}
+
 export {
   strategyFirstRate,
   strategyRate,
@@ -193,5 +255,8 @@ export {
   strategyLastPercent,
   strategyFirstDiscrete,
   strategyDiscrete,
-  strategyLastDiscrete
+  strategyLastDiscrete,
+  strategyUniqueDiscrete,
+  strategyUniquePercent,
+  strategyUniqueRate
 }

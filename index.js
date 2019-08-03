@@ -507,7 +507,8 @@ class Stat {
       'lower': roundStrategy.strategyFirstPercent(),
       'middle': roundStrategy.strategyPercent(),
       'upper': roundStrategy.strategyLastPercent(),
-      'single': roundStrategy.strategyFirstPercent()
+      'single': roundStrategy.strategyFirstPercent(),
+      'unique': roundStrategy.strategyUniquePercent()
     }
 
     switch(this.type){
@@ -516,13 +517,21 @@ class Stat {
         strategies.middle = roundStrategy.strategyRate(),
         strategies.upper = roundStrategy.strategyLastRate(),
         strategies.single = roundStrategy.strategyFirstRate()
+        strategies.unique = roundStrategy.strategyUniqueRate()
       break;
       case 'discrete':
         strategies.lower = roundStrategy.strategyFirstDiscrete(),
         strategies.middle = roundStrategy.strategyDiscrete(),
         strategies.upper = roundStrategy.strategyLastDiscrete(),
         strategies.single = roundStrategy.strategyFirstDiscrete()
+        strategies.unique = roundStrategy.strategyUniqueDiscrete()
       break;
+    }
+
+    //Case only one classe: it must include the min and the max
+    if(result.length === 1){
+      result[0].roundStrategy = strategies.unique
+      return
     }
 
     //Set a default strategy
@@ -535,7 +544,7 @@ class Stat {
       result[result.length - 1].roundStrategy = strategies.upper
     }
 
-    //Case lower classe and single classe
+    //Case lower classe
     if(result[0] !== undefined){
       result[0].roundStrategy = strategies.lower
     }
