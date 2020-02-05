@@ -473,7 +473,7 @@ class Stat {
     if(bounds.length === 0){
       return
     } else if(bounds.lenght < 2){
-      throw "Stat Cannot generate classes. Must have at least 2 values."
+      //throw "Stat Cannot generate classes. Must have at least 2 values."
     }
 
     let cls_prev = new Classe(
