@@ -1,42 +1,39 @@
-
-import * as roundStrategy from './round_strategy.js'
 /**
- * Represent a statistic mathematical classe / range
+ * Statistical classe
  * @param min
  * @param max
  */
 class Classe{
   /**
    * [constructor description]
-   * @param {Number} min the minimale value
-   * @param {Number} max the maximale value
+   * @param {Number}
+   * @param {Number}
    */
   constructor(min, max){
     this.min = min
     this.max = max
-    this.roundStrategy = undefined
   }
 
   /**
-   * Get a rounded value of the minimum
-   * @return {Number} return the min value rounded by the defined strategy
+   * Get the minimum
+   * @return {Number}
    */
   getMin(){
-    return this.roundStrategy.min(this.min)
+    return this.min
   }
 
   /**
-   * Get a rounded value of the maximum
-   * @return {[type]} return the max value rounded accordingly with the strategy
+   * Get the maximum
+   * @return {Number}
    */
   getMax(){
-    return this.roundStrategy.max(this.max)
+    return this.max
   }
 }
 
 /**
  * Class to calculate statistical values from a list of values.
- * - median, min, max, quartiles, list of classes, ...
+ * - median, min, max, quartiles, discretisation classes, ...
  */
 class Stat {
   /**
@@ -46,10 +43,27 @@ class Stat {
    * percent: float [0;100]
    * rate: float ]-Infinity, Infinity[
    */
-  constructor(values, type = 'discrete'){
+  constructor(values, type = 'discrete', precision){
     if(values.length === 0){
       throw "Stat: you must pass a non empty array of values"
     }
+
+    if(type === "undefined"){
+      throw "You must pass a type"
+    }
+
+    if(precision === undefined){
+        throw "You must pass a precision"
+    }
+
+    if(precision === 0){
+        this.precision = 0
+        this.roundPrecision = 1
+    } else {
+        this.precision = Math.pow(10, - precision)
+        this.roundPrecision = Math.pow(10, precision)
+    }
+
     this.type = type
     this.values = values.sort((a,b) => {return a - b})
   }
@@ -64,7 +78,7 @@ class Stat {
 
   /**
    * Get the median value
-   * @return {[type]} [description]
+   * @return {number} [description]
    */
   median(){
     const middle = this.values.length / 2
@@ -86,7 +100,7 @@ class Stat {
    * @return {Number} [description]
    */
   firstQuartile(){
-    return new Stat(this.values.slice(0, Math.floor(this.values.length / 2))).median()
+    return new Stat(this.values.slice(0, Math.floor(this.values.length / 2)), this.type, this.precision).median()
   }
 
   /**
@@ -119,15 +133,15 @@ class Stat {
    */
   thirdQuartile(){
     if(this.isEven()){
-      return new Stat(this.values.slice(this.values.length / 2, this.values.length)).median()
+      return new Stat(this.values.slice(this.values.length / 2, this.values.length), this.type, this.precision).median()
     }
 
-    return new Stat(this.values.slice(Math.ceil(this.values.length / 2), this.values.length)).median()
+    return new Stat(this.values.slice(Math.ceil(this.values.length / 2), this.values.length), this.type, this.precision).median()
   }
 
   /**
    * Get the min value
-   * @return {[type]} [description]
+   * @return {Number}
    */
   min(){
     return Math.min(...this.values)
@@ -135,7 +149,7 @@ class Stat {
 
   /**
    * Get the max value
-   * @return {[type]} [description]
+   * @return {Number}
    */
   max(){
     return Math.max(...this.values)
@@ -143,47 +157,43 @@ class Stat {
 
   /**
    * Deprecated
-   * @param  {[type]} nbrClasse [description]
-   * @param  {[type]} total     [description]
-   * @return {[type]}           [description]
+   * @param  {Number} nbrClasse     number of classes
+   * @param  {Number} total         total of values
+   * @return {Number}               average number of values per quartile
    */
   getNbrPerQuartile(nbrClasse, total){
     const x = total / nbrClasse
-    // const decimals = x - Math.floor(x)
-    //
-    // if(x === Math.floor(x)){
-    //   return x
-    // } else if (total % Math.ceil(x) === 0){
-    //   return Math.floor(x)
-    // }
 
     return Math.ceil(x)
   }
 
   /**
-   * Deprecated
-   * @param  {[type]} value [description]
-   * @return {[type]}       [description]
+   * Return a floor value with a roundPrecision
+   * @return {Number}       [description]
    */
-  minValue(value){
-    if(this.type === 'discrete' || this.type === 'percent'){
-      return Math.max(0, value)
-    }
+  minValue(){
+      if(this.min() % this.roundPrecision === 0){
+          return this.min()
+      }
 
-    return value
+      let roundedDown = Math.floor(this.min() * this.roundPrecision) / this.roundPrecision
+
+    return roundedDown
   }
 
   /**
-   * Deprecated
-   * @param  {[type]} value [description]
-   * @return {[type]}       [description]
+   * Return ceil value with a roundPrecision
+   * @return {Number}       [description]
    */
   maxValue(value){
-    if(this.type === 'percent'){
-      return Math.min(100, value)
+    if(this.max() % this.roundPrecision === 0){
+        return this.max()
     }
 
-    return value
+    let roundedUp = Math.ceil(this.max() * this.roundPrecision) / this.roundPrecision
+
+
+    return roundedUp
   }
 
   /**
@@ -196,7 +206,8 @@ class Stat {
    * @param  {Number} [precision=2] [description]
    * @return {[type]}               [description]
    */
-  toFixed(floatValue, precision = 2){
+  toFixed(floatValue){
+    const precision = this.type === 'discrete'?  0 : - Math.log10(this.precision)
     return Number(floatValue.toFixed(precision))
   }
 
@@ -224,7 +235,9 @@ class Stat {
    * @return {[Number]} the square root of the variance
    */
   std_dev(){
-    return this.toFixed(Math.sqrt(this.variance()), 4)
+    const std = Math.sqrt(this.variance())
+    return Number(std.toFixed(4))
+  // return this.toFixed(Math.sqrt(this.variance()), 4)
   }
 
   /**
@@ -263,7 +276,7 @@ class Stat {
 
     result.push(new Classe(min, max))
 
-    this.setStrategies(result)
+    // this.setStrategies(result)
 
     return result.sort((a, b) => a.min - b.min)
   }
@@ -380,22 +393,20 @@ class Stat {
     const logReason = (logMax - logMin) / nb_classe
     const reason = Math.pow(10, logReason)
     const maxValue = this.toFixed(min * reason)
-    let cls_prev = new Classe(min, maxValue)
+    let cls_prev = new Classe(min, this.getMaxPrecision(maxValue))
     let cls_next
 
     result.push(cls_prev)
 
     for(let i = 1; i < nb_classe; i++){
       const max = this.toFixed(cls_prev.max * reason)
-      cls_next = new Classe(cls_prev.max, max)
+      cls_next = new Classe(this.getMinPrecision(cls_prev.max), this.getMaxPrecision(max))
       result.push(cls_next)
 
       cls_prev = cls_next
     }
 
-    cls_prev.max = this.maxValue(this.max() + 0.01)
-
-    this.setStrategies(result)
+    cls_prev.max = this.maxValue(this.max())
 
     return result
   }
@@ -412,22 +423,27 @@ class Stat {
 
     const amplitude = this.toFixed((max - min) / nb_classe)
 
-    let cls_prev = new Classe(this.minValue(min), this.toFixed(min + amplitude))
+    let minValue = this.minValue(min)
+    let maxValue = this.getMaxPrecision(min + amplitude)
+
+    let cls_prev = new Classe(minValue, maxValue)
     let cls_next
 
     result.push(cls_prev)
 
     for(let i = 1; i < nb_classe; i++){
-      cls_next = new Classe(cls_prev.max, this.toFixed(cls_prev.max + amplitude))
+      minValue = this.getMinPrecision(cls_prev.max)
+      maxValue = this.getMaxPrecision(cls_prev.max + amplitude)
+      cls_next = new Classe(minValue, maxValue)
       result.push(cls_next)
 
       cls_prev = cls_next
     }
 
     //The max value for the upper classe is higher to the max value
-    cls_prev.max = this.maxValue(this.max() + 0.01)
+    cls_prev.max = this.maxValue(this.max())
 
-    this.setStrategies(result)
+    // this.setStrategies(result)
 
     return result
   }
@@ -476,78 +492,48 @@ class Stat {
       //throw "Stat Cannot generate classes. Must have at least 2 values."
     }
 
+    let max = this.getMaxPrecision(bounds[1])
+
     let cls_prev = new Classe(
-      this.minValue(this.min() - 0.01),
-      bounds[1]
+      this.minValue(),
+      max
     )
 
     result.push(cls_prev)
 
-    let cls_next
+    let cls_next, min = cls_prev.max + this.precision
 
     for(let i = 2; i < bounds.length; i++){
-      cls_next = new Classe(cls_prev.max, bounds[i])
+      const max = this.getMaxPrecision((bounds[i]))
+      const min = this.getMinPrecision(cls_prev.max)
+      cls_next = new Classe(min, max)
       result.push(cls_next)
       cls_prev = cls_next
     }
 
-    cls_prev.max = this.maxValue(this.max() + 0.01)
+    cls_prev.max = this.maxValue(this.max())
 
-    this.setStrategies(result)
+    // this.setStrategies(result)
 
     return result
   }
 
-  /**
-   * Strategies to round the values
-   * @param {[type]} result [description]
-   */
-  setStrategies(result){
-    let strategies = {
-      'lower': roundStrategy.strategyFirstPercent(),
-      'middle': roundStrategy.strategyPercent(),
-      'upper': roundStrategy.strategyLastPercent(),
-      'single': roundStrategy.strategyFirstPercent(),
-      'unique': roundStrategy.strategyUniquePercent()
-    }
+  getMinPrecision(min){
+      if(this.precision === 0){
+          return min
+      }
 
-    switch(this.type){
-      case 'rate':
-        strategies.lower = roundStrategy.strategyFirstRate(),
-        strategies.middle = roundStrategy.strategyRate(),
-        strategies.upper = roundStrategy.strategyLastRate(),
-        strategies.single = roundStrategy.strategyFirstRate()
-        strategies.unique = roundStrategy.strategyUniqueRate()
-      break;
-      case 'discrete':
-        strategies.lower = roundStrategy.strategyFirstDiscrete(),
-        strategies.middle = roundStrategy.strategyDiscrete(),
-        strategies.upper = roundStrategy.strategyLastDiscrete(),
-        strategies.single = roundStrategy.strategyFirstDiscrete()
-        strategies.unique = roundStrategy.strategyUniqueDiscrete()
-      break;
-    }
+      return Math.ceil((min + this.precision) * this.roundPrecision) / this.roundPrecision
+  }
 
-    //Case only one classe: it must include the min and the max
-    if(result.length === 1){
-      result[0].roundStrategy = strategies.unique
-      return
-    }
+  getMaxPrecision(max){
+      if(this.precision === 0){
+          return max
+      }
+      max = (max - this.precision) * this.roundPrecision
+      max = Math.floor(max) / this.roundPrecision
 
-    //Set a default strategy
-    for(let i = 0; i < result.length; i++){
-      result[i].roundStrategy = strategies.middle
-    }
-
-    //Case upper classe
-    if(result[result.length - 1] !== undefined){
-      result[result.length - 1].roundStrategy = strategies.upper
-    }
-
-    //Case lower classe
-    if(result[0] !== undefined){
-      result[0].roundStrategy = strategies.lower
-    }
+      return max
   }
 }
 

@@ -1,11 +1,13 @@
-# Library to perform statistical calculation
+# Library to perform statistical calculation, 
+This library calculate common statistical computation like, mean, average, quartiles. You can also create discretization classes based on different algorithm quantile, jenks, equal amplitude ...
+
+> Note: the standard derivation is not available for the 2.0 version. It will be fixed in a near future.
 
 ### Build status
 
 | Branch | status |
 | ------------- | ------------- |
 | Master  |  ![build status](https://travis-ci.com/LAEQ/laeq-stats.svg?branch=master)|
-
 
 Library to generate statistical classes (quantile, jenks, ...) from a list of values (integer, float).
 
@@ -20,4 +22,4 @@ node_modules/mocha/bin/mocha --require @babel/register -g test_name
 ```
 
 ### How to use it
-The unit test provides some useful examples (how to use it, what to expect).
+Please check the unit tests for some examples.
