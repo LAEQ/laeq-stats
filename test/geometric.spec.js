@@ -23,7 +23,7 @@ describe('Statistic: geometric', function() {
   });
 })
 
-describe('Statistic: geometric tmp', function() {
+describe('Statistic: geometric', function() {
   describe('Test geometric discretisation', function() {
     it('Case: float values 5 classes', function() {
       const stat = new Stat([2.34, 5.56,12.334,24.356,35.789,123.234,234.567,456.123,567], 'rate', 3)

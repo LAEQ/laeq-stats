@@ -1,10 +1,10 @@
 import * as chai from 'chai';
 import { Stat, Classe } from '../index.js'
 
-describe('Statistic: test exports', function() {
+describe('Statistic: test exports tmp', function() {
   describe('Test class exports', function() {
     it('can create a stat object', function() {
-      const stat = new Stat([1,2,3,4,5], 'discrete', 0)
+      const stat = new Stat([1,2,3,4,5])
 
       chai.expect(stat).to.be.an('object')
     });

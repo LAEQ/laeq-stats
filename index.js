@@ -43,29 +43,24 @@ class Stat {
    * percent: float [0;100]
    * rate: float ]-Infinity, Infinity[
    */
-  constructor(values, type = 'discrete', precision){
+  constructor(values,  precision = 0){
     if(values.length === 0){
       throw "Stat: you must pass a non empty array of values"
     }
 
-    if(type === "undefined"){
-      throw "You must pass a type"
+    this.isInt = values.reduce( (previous, current) => { return Number.isInteger(current) && previous}, true)
+
+    if(Number.isInteger(precision)){
+        this.precision = Math.pow(10, precision)
     }
 
-    if(precision === undefined){
-        throw "You must pass a precision"
-    }
-
-    if(precision === 0){
-        this.precision = 0
-        this.roundPrecision = 1
-    } else {
-        this.precision = Math.pow(10, - precision)
-        this.roundPrecision = Math.pow(10, precision)
-    }
-
-    this.type = type
     this.values = values.sort((a,b) => {return a - b})
+
+    if(this.precision > 1){
+        this.valuesPrec = this.values.map(v => Math.round(v * this.precision))
+        this.values = this.valuesPrec.map(v => v / this.precision)
+    }
+
   }
 
   /**
