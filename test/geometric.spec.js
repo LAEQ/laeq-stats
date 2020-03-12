@@ -4,7 +4,7 @@ import {Stat} from '../index.js'
 
 chai.use(chaiExclude);
 
-describe('Statistic: geometric tmp', function () {
+describe('Statistic: geometric', function () {
     describe('Test geometric discretisation', function () {
         it('Case: integer values 5 classes', function () {
             const stat = new Stat([2, 5, 12, 24, 35, 123, 234, 456, 567, 678, 789], 0)
