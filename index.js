@@ -37,20 +37,13 @@ class Classe {
  */
 class Stat {
     /**
-     * @param {[Number]} values            [description]
-     * @param {String} [type='discrete']
-     * discrete: integer positive or null
-     * percent: float [0;100]
-     * rate: float ]-Infinity, Infinity[
+     * @param {[Number]} values
+     * @param {integer} decimal precision
      */
     constructor(values, precision = 0) {
         if (values.length === 0) {
             throw "Stat: you must pass a non empty array of values"
         }
-
-        this.isInt = values.reduce((previous, current) => {
-            return Number.isInteger(current) && previous
-        }, true)
 
         if (Number.isInteger(precision)) {
             this.precision = Math.pow(10, precision)
@@ -60,13 +53,12 @@ class Stat {
             return a - b
         })
 
+        this.valuesPrec = this.values
+
         if (this.precision > 1) {
             this.valuesPrec = this.values.map(v => Math.floor(v * this.precision))
             this.values = this.valuesPrec.map(v => v / this.precision)
-        } else {
-            this.valuesPrec = this.values
         }
-
     }
 
     /**
@@ -79,7 +71,7 @@ class Stat {
 
     /**
      * Get the median value
-     * @return {number} [description]
+     * @return {Number} 
      */
     median() {
         const middle = this.values.length / 2
@@ -98,7 +90,7 @@ class Stat {
 
     /**
      * Get first quartile value
-     * @return {Number} [description]
+     * @return {Number} 
      */
     firstQuartile() {
         return new Stat(this.values.slice(0, Math.floor(this.values.length / 2)), this.type, this.precision).median()
@@ -106,7 +98,7 @@ class Stat {
 
     /**
      * Get the mean value
-     * @return {Number} [description]
+     * @return {Number} 
      */
     mean() {
         if (this.size() === 0) {
@@ -133,11 +125,12 @@ class Stat {
      * @return {Number}
      */
     thirdQuartile() {
+        const precision = Math.log10(this.precision)
         if (this.isEven()) {
-            return new Stat(this.values.slice(this.values.length / 2, this.values.length), this.type, this.precision).median()
+            return new Stat(this.values.slice(this.values.length / 2, this.values.length), precision).median()
         }
 
-        return new Stat(this.values.slice(Math.ceil(this.values.length / 2), this.values.length), this.type, this.precision).median()
+        return new Stat(this.values.slice(Math.ceil(this.values.length / 2), this.values.length), precision).median()
     }
 
     /**
@@ -166,43 +159,6 @@ class Stat {
         const x = total / nbrClasse
 
         return Math.ceil(x)
-    }
-
-    /**
-     * Return a floor value with a roundPrecision
-     * @return {Number}       [description]
-     */
-    minValue() {
-        return this.min()
-    }
-
-    /**
-     * Return ceil value with a roundPrecision
-     * @return {Number}       [description]
-     */
-    maxValue(value) {
-        if (this.max() % this.roundPrecision === 0) {
-            return this.max()
-        }
-
-        let roundedUp = Math.ceil(this.max() * this.roundPrecision) / this.roundPrecision
-
-        return roundedUp
-    }
-
-    /**
-     * Round a float value with a precision
-     *
-     * IMPORTANT: this is not 100% accurate method
-     * Read more one a binary floating-point representation
-     *
-     * @param  {[type]} floatValue    [description]
-     * @param  {Number} [precision=2] [description]
-     * @return {[type]}               [description]
-     */
-    toFixed(floatValue) {
-        const precision = this.type === 'discrete' ? 0 : -Math.log10(this.precision)
-        return Number(floatValue.toFixed(precision))
     }
 
     /**
@@ -254,7 +210,7 @@ class Stat {
             min = Math.max(this.min(), mean - (++index * std_dev))
         }
 
-        result.push(new Classe(this.minValue(min - 0.01), max))
+        result.push(new Classe(this.min(), max))
 
         //Case: Values >  median
         index = 1
@@ -295,7 +251,7 @@ class Stat {
      * https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization
      *
      * @param  {Number} nb_classe
-     * @return {[Classe]}           [description]
+     * @return {[Classe]}           
      */
     jenks(nb_classe) {
         if (nb_classe < 1) {

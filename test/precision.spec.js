@@ -15,20 +15,6 @@ describe('Statistic: check precision', function() {
     });
   });
 
-  describe('Check if is integer values', function(){
-    it('should return the true for integers only', function() {
-      chai.expect(new Stat([1,2,3,4,5]).isInt).to.be.true
-    });
-
-    it('should return true if some values are floats with decimal nulle', function() {
-      chai.expect(new Stat([5.0,2,3,4,1]).isInt).to.be.true
-    });
-
-    it('should return false for floats', function() {
-      chai.expect(new Stat([5.000000001,2,3,4,1]).isInt).to.be.false
-    });
-  })
-
   describe('precision 1', function() {
     it('should return the values unchanged for integers', function() {
       chai.expect(new Stat([1,2,3,4,5]).values).to.eql([1,2,3,4,5]);
