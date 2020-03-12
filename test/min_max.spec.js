@@ -4,7 +4,7 @@ import chaiAlmost from 'chai-almost'
 
 chai.use(chaiAlmost(0.000001))
 
-describe('Statistic: min, max, total, mean tmp', function() {
+describe('Statistic: min, max, total, mean', function() {
   describe('min', function() {
     it('should return the min value', function() {
       chai.expect(new Stat([1,2,3,4,5]).min()).to.equal(1);
