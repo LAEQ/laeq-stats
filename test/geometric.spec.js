@@ -10,7 +10,7 @@ describe('Statistic: geometric tmp', function () {
             const stat = new Stat([2, 5, 12, 24, 35, 123, 234, 456, 567, 678, 789], 0)
             const result = stat.geometric(5)
 
-            chai.expect(result).excluding('roundStrategy').to.deep.equal(
+            chai.expect(result).to.deep.equal(
                 [
                     {min: 2, max: 7},
                     {min: 8, max: 23},
@@ -27,7 +27,7 @@ describe('Statistic: geometric tmp', function () {
             const stat = new Stat([2.34, 5.56, 12.334, 24.356, 35.789, 123.234, 234.567, 456.123, 567], 3)
             const result = stat.geometric(6)
 
-            chai.expect(result).excluding('roundStrategy').to.deep.equal(
+            chai.expect(result).to.deep.equal(
                 [
                     {min: 2.34, max: 5.843},
                     {min: 5.844, max: 14.589},

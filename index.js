@@ -268,10 +268,26 @@ class Stat {
         }
 
         result.push(new Classe(min, max))
+        result = result.sort((a, b) => a.min - b.min)
+        result.forEach(c => {
+            c.min = Math.round(c.min * this.precision)
+            c.max = Math.round(c.max * this.precision)
+        })
 
-        // this.setStrategies(result)
+        for(let i = 1; i < result.length; i++){
+            const max = result[i - 1].max
+            result[i].min = max + 1
+        }
 
-        return result.sort((a, b) => a.min - b.min)
+        result.forEach(c => {
+            c.min = c.min / this.precision
+            c.max = c.max / this.precision
+        })
+
+        result[0].min = Math.floor(this.min() * this.precision) / this.precision
+        result[result.length - 1].max = Math.ceil(this.max() * this.precision) / this.precision
+
+        return result
     }
 
     /**
