@@ -1,7 +1,5 @@
-# Library to perform statistical calculation, 
-This library calculate common statistical computation like, mean, average, quartiles. You can also create discretization classes based on different algorithm quantile, jenks, equal amplitude ...
-
-> Note: the standard derivation is not available for the 2.0 version. It will be fixed in a near future.
+# Library to create discretisation classes
+This library calculate statistical computation and return discretization classes (quantile, jenks, equal amplitude, standard deviation)
 
 ### Build status
 
