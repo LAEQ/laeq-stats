@@ -64,8 +64,8 @@ describe('Statistic: quantile method with float values', function () {
             chai.expect(result).to.deep.equal(
                 [
                     {min: 2.34, max: 6.78},
-                    {min: 6.79, max: 34.97},
-                    {min: 34.98, max: 67.89},
+                    {min: 6.79, max: 34.98},
+                    {min: 34.99, max: 67.89},
                     {min: 67.9, max: 83.45},
                     {min: 83.46, max: 100}
                 ]
@@ -77,11 +77,11 @@ describe('Statistic: quantile method with float values', function () {
 
             chai.expect(result).to.deep.equal(
                 [
-                    {min: 2.3, max: 6.7},
-                    {min: 6.8, max: 34.9},
-                    {min: 35, max: 67.8},
-                    {min: 67.9, max: 83.4},
-                    {min: 83.5, max: 98.3}
+                    {min: 2.3, max: 6.8},
+                    {min: 6.9, max: 35},
+                    {min: 35.1, max: 67.9},
+                    {min: 68, max: 83.5},
+                    {min: 83.6, max: 98.3}
                 ]
             );
         });

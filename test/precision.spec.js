@@ -21,8 +21,8 @@ describe('Statistic: check precision', function() {
     });
 
     it('should return the values changed and reordered for floats', function() {
-      chai.expect(new Stat([5.345,2.12,3.898564,4.00000002,1.2345], 2).values).to.eql([1.23, 2.12, 3.89, 4.00, 5.34 ]);
-      chai.expect(new Stat([5.345,2.12,3.898564,4.00000002,1.2345], 2).valuesPrec).to.eql([123, 212, 389, 400, 534 ]);
+      chai.expect(new Stat([5.345,2.12,3.898564,4.00000002,1.2345], 2).values).to.eql([1.23, 2.12, 3.9, 4.00, 5.35 ]);
+      chai.expect(new Stat([5.345,2.12,3.898564,4.00000002,1.2345], 2).valuesPrec).to.eql([123, 212, 390, 400, 535 ]);
     });
   });
 });

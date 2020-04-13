@@ -56,7 +56,7 @@ class Stat {
         this.valuesPrec = this.values
 
         if (this.precision > 1) {
-            this.valuesPrec = this.values.map(v => Math.floor(v * this.precision))
+            this.valuesPrec = this.values.map(v => Math.round(v * this.precision))
             this.values = this.valuesPrec.map(v => v / this.precision)
         }
     }
