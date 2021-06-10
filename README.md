@@ -20,4 +20,4 @@ node_modules/mocha/bin/mocha --require @babel/register -g test_name
 ```
 
 ### How to use it
-Please check the unit tests for some examples.
+Check the unit tests for some examples.
